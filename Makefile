@@ -1,6 +1,5 @@
 CC=gcc
 FLAGS=-Wall -g
-WINSOCKFLAG=-lwsock32
 SRC=src
 OBJ=obj
 SRCS=$(wildcard $(SRC)/*.c)
@@ -11,7 +10,7 @@ all: $(EXE)
 
 $(EXE): $(OBJS)
 	@echo "Compilando $(EXE)..."
-	@$(CC) $(FLAGS) $(OBJS) -o $@ $(WINSOCKFLAG)
+	@$(CC) $(FLAGS) $(OBJS) -o $@
 	@echo "$(EXE) compilado com sucesso!"
 
 $(OBJ)/%.o: $(SRC)/%.c
@@ -20,10 +19,11 @@ $(OBJ)/%.o: $(SRC)/%.c
 	@ $(CC) $(FLAGS) -o $@ -c $< 
 
 clean:
-	@echo "Limpando obj/*.o, *.exe"
+	@clear
+	@echo "Limpando obj/*.o, chat-server"
 
 	@ rm -f $(OBJ)/*.o
-	@ rm chat-server.exe
+	@ rm ./chat-server
 
 run:
 	@clear
