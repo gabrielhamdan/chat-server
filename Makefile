@@ -9,14 +9,20 @@ EXE=chat-server
 all: $(EXE)
 
 $(EXE): $(OBJS)
+	@echo "Compilando..."
 	$(CC) $(FLAGS) $(OBJS) -o $@
+	@echo "Pronto!"
 
 $(OBJ)/%.o: $(SRC)/%.c
-	$(CC) $(FLAGS) -o $@ -c $< 
+	@ if [ ! -d "obj" ]; then echo "Criando diretório 'obj'..."; mkdir "obj"; fi
+
+	@ $(CC) $(FLAGS) -o $@ -c $< 
 
 clean:
-	rm -f $(OBJ)/*.o
-	rm chat-server.exe
+	@echo "Limpando obj/*.o, *.exe"
+
+	@ rm -f $(OBJ)/*.o
+	@ rm chat-server.exe
 
 run:
 	./$(EXE)
