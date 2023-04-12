@@ -4,7 +4,7 @@ SRC=src
 OBJ=obj
 SRCS=$(wildcard $(SRC)/*.c)
 OBJS=$(patsubst $(SRC)/%.c, $(OBJ)/%.o, $(SRCS))
-EXE=chat-server
+EXE=chat-client
 
 all: $(EXE)
 
@@ -20,10 +20,10 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 clean:
 	@clear
-	@echo "Limpando obj/*.o, chat-server"
+	@echo "Limpando obj/*.o, chat-client"
 
 	@ rm -f $(OBJ)/*.o
-	@ rm ./chat-server
+	@ rm ./chat-client
 
 run:
 	@clear
