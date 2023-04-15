@@ -18,12 +18,13 @@ $(OBJ)/%.o: $(SRC)/%.c
 
 	@ $(CC) $(FLAGS) -o $@ -c $< 
 
+.PHONY: clean
 clean:
 	@clear
 	@echo "Limpando obj/*.o, chat-client"
 
-	@ rm -f $(OBJ)/*.o
-	@ rm ./chat-client
+	@ -rm -f $(OBJ)/*.o
+	@ -rm ./chat-client
 
 run:
 	@clear
