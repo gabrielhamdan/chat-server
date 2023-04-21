@@ -26,6 +26,7 @@ clean:
 	@ -rm -f $(OBJ)/*.o
 	@ -rm ./chat-server
 
+.PHONY: run
 run:
 	@clear
 	@./$(EXE)
