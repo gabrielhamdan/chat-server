@@ -18,7 +18,8 @@ int main(int argc, char **argv) {
 	if(serverFd < 0) {
 		perror("ERRO: Falha ao criar o socket.\n");
 		return EXIT_FAILURE;
-	}
+	} else
+		printf("> Socket criado com sucesso.\n");
 
 	serv_addr.sin_family = AF_INET;
 	inet_pton(AF_INET, LOCALHOST, &(serv_addr.sin_addr));
@@ -32,7 +33,8 @@ int main(int argc, char **argv) {
 	if (listen(serverFd, MAX_FILA) < 0) {
 		perror("ERRO: Falha ao escutar o socket.\n");
 		return EXIT_FAILURE;
-	}
+	} else
+		printf("> Escutando na porta %d.\n", PORTA);
 
 	printf("> Servidor inicializado com sucesso.\n");
 
