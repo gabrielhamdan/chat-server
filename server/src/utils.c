@@ -72,7 +72,7 @@ void adiciona_cliente(Cliente *cliente) {
 void remove_cliente(int id) {
 	pthread_mutex_lock(&lock);
 
-	for(int i=0; i < MAX_CON; ++i){
+	for(int i=0; i < MAX_CON; ++i) {
 		if(clientes[i]){
 			if(clientes[i]->idUsuario == id){
 				clientes[i] = NULL;
@@ -90,7 +90,7 @@ void envia_mensagem(char *mensagem, int id) {
 	for(int i=0; i<MAX_CON; ++i){
 		if(clientes[i]){
 			if(clientes[i]->idUsuario != id){
-				if(write(clientes[i]->sockfd, mensagem, strlen(mensagem)) < 0){
+				if(write(clientes[i]->sockfd, mensagem, strlen(mensagem)) < 0) {
 					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");
 					break;
 				}
