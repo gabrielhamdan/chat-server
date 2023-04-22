@@ -14,9 +14,9 @@
 #define LENGTH 2048
 
 // Global variables
-volatile sig_atomic_t flag = 0;
-int sockfd = 0;
-char name[32];
+extern volatile sig_atomic_t flag;
+extern int sockfd;
+extern char name[32];
 
 // void str_sobrescreve_stdout() { //sobrescreve o texto do console com '>'
 //     printf("%s", "> ");
@@ -76,10 +76,10 @@ char name[32];
 // }
 
 int main(int argc, char **argv){
-	if(argc != 2){
-		printf("Uso: %s <port>\n", argv[0]); //não tenho certeza do que esse if faz
-		return EXIT_FAILURE;
-	}
+	// if(argc != 2){
+	// 	printf("Uso: %s <port>\n", argv[0]); //não tenho certeza do que esse if faz
+	// 	return EXIT_FAILURE;
+	// }
 
 	char *ip = "127.0.0.1";
 	int port = 30000;
