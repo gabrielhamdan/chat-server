@@ -15,6 +15,7 @@
 void str_sobrescreve_stdout();
 void str_remover_quebralinha (char* arr, int length);
 void captura_ctrlc_sai(int sig);
+// void checarNome();
 void enviar_msg();
 void receber_msg();
 
