@@ -115,7 +115,12 @@ int main(int argc, char **argv){
 	// Enviar nome
 	send(sockfd, name, 32, 0);
 
-	printf("=== BEM-VINDE À SALA ===\n");
+	char s[4];
+	fgets(s, 4, stdin);
+	send(sockfd, s, 4, 0);
+	char n[10];
+	fgets(n, 10, stdin);
+	send(sockfd, n, 10, 0);
 
 	pthread_t send_msg_thread;
     if(pthread_create(&send_msg_thread, NULL, (void *) enviar_msg, NULL) != 0){

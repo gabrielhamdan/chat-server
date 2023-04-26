@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 		cliente->idUsuario = id++;
 
 		adiciona_cliente(cliente);
-		pthread_create(&idThread, NULL, &escuta_cliente, (void*)cliente);
+		pthread_create(&idThread, NULL, &recepciona_cliente, (void*)cliente);
 	}
 
 	return EXIT_SUCCESS;
