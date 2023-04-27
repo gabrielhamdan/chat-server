@@ -16,9 +16,9 @@
 
 void printa_addr(struct sockaddr_in addr);
 void adiciona_cliente(Cliente *cliente);
-// void remove_cliente(int id);
-// void envia_mensagem(char *mensagem, int id);
-// void escuta_cliente(Cliente *cliente);
+void remove_cliente(int id);
+void envia_mensagem(char *mensagem, int idCliente, int idSala);
+void *_escuta_cliente(void *cliente_t);
 void *recepciona_cliente(void *cliente_t);
 
 #endif

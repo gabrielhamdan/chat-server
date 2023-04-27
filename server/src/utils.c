@@ -7,47 +7,44 @@ static Sala *salas[MAX_SALAS];
 _Atomic unsigned int idSala = 0;
 
 pthread_mutex_t lock;
+pthread_t idThreadEscutaCliente;
 
-void _cria_sala(Cliente *cliente) {
-	printf("Aguardando criação de sala.\n");
-
-	char salaNome[64];
-	recv(cliente->sockfd, salaNome, 64, 0);
-	printf("%s", salaNome);
-
+int _cria_sala(char salaNome[]) {
 	pthread_mutex_lock(&lock);
 
+	Sala *sala = (Sala *)malloc(sizeof(Sala));
+
+	sala->idSala = idSala++;
+	strcpy(sala->salaNome, salaNome);
+	
 	for(int i = 0; i < MAX_SALAS; ++i){
-		if(!salas[i]){
-			// salas[i]->salaNome[64] = malloc(64);
-			// salas[i]->idSala = malloc(16);
-			// strcpy(salas[i]->salaNome[64], salaNome);
-			salas[i]->idSala = idSala++;
-			cliente->idSala = idSala;
+		if(!salas[i]) {
+			salas[i] = sala;
 			break;
 		}
 	}
 
 	pthread_mutex_unlock(&lock);
 
-	_escuta_cliente(&cliente);
+	return idSala;
 }
 
 void _mostra_salas_disponiveis(Cliente *cliente) {
 }
 
-void _aguarda_selecao_sala(Cliente *cliente) {
-	printf("Aguardando seleção de sala.\n");
+// void _aguarda_selecao_sala(Cliente *cliente) {
+// 	printf("Aguardando seleção de sala.\n");
 
-	char op[4];
-	recv(cliente->sockfd, op, 4, 0);
-	printf("%s", op);
+// 	char op[4];
+// 	recv(cliente->sockfd, op, 4, 0);
 
-	if(atoi(op) == 1)
-		_mostra_salas_disponiveis(&cliente);
-	else if(atoi(op) == 2)
-		_cria_sala(&cliente);
-}
+// 	int opInt = atoi(op);
+
+// 	if(atoi(opInt) == 1)
+// 		_mostra_salas_disponiveis(&cliente);
+// 	else if(atoi(op) == 2)
+// 		_cria_sala(&cliente);
+// }
 
 void *recepciona_cliente(void *cliente_t) {
 	char buffer[BUFFER_SIZE];
@@ -72,47 +69,38 @@ void *recepciona_cliente(void *cliente_t) {
 		perror("ERRO: Falha ao escrever no descritor de arquivo.\n");
 	}
 
-	// _aguarda_selecao_sala(&cliente);
+	// char opSelecao[4];
+	// recv(cliente->sockfd, opSelecao, 4, 0);
+	// _aguarda_selecao_sala(atoi(opSelecao));
 
-	printf("Aguardando seleção de sala.\n");
+	// cria sala
+	// Cliente *cliente = (Cliente *)malloc(sizeof(Cliente));
+	char nomeSala[64];
+	recv(cliente->sockfd, nomeSala, 64, 0);
+	int idSala = _cria_sala(nomeSala);
 
-	char op[4];
-	recv(cliente->sockfd, op, 4, 0);
-	printf("%s", op);
+	char testeId[4];
+	recv(cliente->sockfd, testeId, 4, 0);
+	cliente->idSala = atoi(testeId);
 
-	// if(atoi(op) == 1)
-	// 	_mostra_salas_disponiveis(&cliente);
-	// else if(atoi(op) == 2)
-	// 	_cria_sala(&cliente);
 
-	char salaNome[64];
-	recv(cliente->sockfd, salaNome, 64, 0);
-	printf("%s", salaNome);
+	pthread_detach(pthread_self());
 
-	pthread_mutex_lock(&lock);
+	pthread_create(&idThreadEscutaCliente, NULL, &_escuta_cliente, (void*)cliente);
 
-	for(int i = 0; i < MAX_SALAS; ++i){
-		if(!salas[i]){
-			// salas[i]->salaNome[64] = malloc(64);
-			// salas[i]->idSala = malloc(16);
-			strcpy(salas[i]->salaNome[64], salaNome);
-			salas[i]->idSala = idSala++;
-			cliente->idSala = idSala;
-			break;
-		}
-	}
-
-	pthread_mutex_unlock(&lock);
+	return NULL;
 }
 
-void _escuta_cliente(Cliente *cliente) {
-	printf("Escutando usuário %s na sala %s.", cliente->nomeUsuario, cliente->idSala);
+void *_escuta_cliente(void *cliente_t) {
+	Cliente *cliente = (Cliente *)cliente_t;
+
+	printf("> Escutando usuário %s na sala %d.\n", cliente->nomeUsuario, cliente->idSala);
 
 	int desconectou = 0;
 
 	char buffer[BUFFER_SIZE];
 	
-	sprintf(buffer, "%s entrou.\n", cliente->nomeUsuario);
+	sprintf(buffer, "> %s entrou.\n", cliente->nomeUsuario);
 	envia_mensagem(buffer, cliente->idUsuario, cliente->idSala);
 
 	bzero(buffer, BUFFER_SIZE); 
@@ -124,7 +112,7 @@ void _escuta_cliente(Cliente *cliente) {
 			if(strlen(buffer) > 0)
 				envia_mensagem(buffer, cliente->idUsuario, cliente->idSala);
 		} else if (rec == 0 || strcmp(buffer, "/s") == 0){
-			sprintf(buffer, "%s saiu.\n", cliente->nomeUsuario);
+			sprintf(buffer, "> %s saiu.\n", cliente->nomeUsuario);
 			printf("%s", buffer);
 			envia_mensagem(buffer, cliente->idUsuario, cliente->idSala);
 			desconectou = 1;
@@ -142,8 +130,9 @@ void _escuta_cliente(Cliente *cliente) {
 	remove_cliente(cliente->idUsuario);
 	free(cliente);
 	clienteInc--;
-
 	pthread_detach(pthread_self());
+
+	return NULL;
 }
 
 void printa_addr(struct sockaddr_in addr) {
@@ -185,7 +174,7 @@ void envia_mensagem(char *mensagem, int idCliente, int idSala) {
 
 	for(int i=0; i<MAX_CON; ++i){
 		if(clientes[i]){
-			if(clientes[i]->idUsuario != idCliente && clientes[i]->idUsuario == idSala){
+			if(clientes[i]->idUsuario != idCliente && clientes[i]->idSala == idSala){
 				if(write(clientes[i]->sockfd, mensagem, strlen(mensagem)) < 0) {
 					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");
 					break;
