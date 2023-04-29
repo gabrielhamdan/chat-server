@@ -1,7 +1,7 @@
 #ifndef __CONSTANTES_H
 #define __CONSTANTES_H
 
-#include <sys/socket.h>
+// #include <sys/socket.h>
 
 #define PORTA 30000
 #define LOCALHOST "127.0.0.1"
@@ -24,6 +24,7 @@ typedef struct {
 typedef struct {
 	char salaNome[64];
 	int idSala;
+	int usuOn;
 } Sala;
 
 #endif
