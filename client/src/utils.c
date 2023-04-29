@@ -33,13 +33,13 @@ void enviar_msg() { //envia mensagens ao servidor
     while(1) {
   	    str_sobrescreve_stdout();
         fgets(message, LENGTH, stdin);
-        str_remover_quebralinha(message, LENGTH);
+        // str_remover_quebralinha(message, LENGTH);
 
         if (strcmp(message, "/s") == 0) {//se o usuário escrever 'sair' no fim da mensagem, termina o programa
 			break;
         } else {
-            sprintf(buffer, "%s: %s\n", name, message);//se não, adiciona o nome do usuário ao início da mensagem
-            send(sockfd, buffer, strlen(buffer), 0);//e envia a mensagem
+            // sprintf(buffer, "%s: %s\n", name, message);//se não, adiciona o nome do usuário ao início da mensagem
+            send(sockfd, message, strlen(message), 0);//e envia a mensagem
         }
 
 		bzero(message, LENGTH);

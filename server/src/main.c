@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
 	struct sockaddr_in serv_addr;
 	struct sockaddr_in cli_addr;
 	
-	pthread_t idThread;
+	static pthread_t idThread;
 
 	serverFd = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -20,6 +20,11 @@ int main(int argc, char **argv) {
 		return EXIT_FAILURE;
 	} else
 		printf("> Socket criado com sucesso.\n");
+
+	if (setsockopt(serverFd, SOL_SOCKET, SO_REUSEADDR, &(int){1}, sizeof(int)) < 0) {
+    	perror("> Falha ao executar setsockopt(SO_REUSEADDR).\n");
+		return EXIT_FAILURE;
+	}
 
 	serv_addr.sin_family = AF_INET;
 	inet_pton(AF_INET, LOCALHOST, &(serv_addr.sin_addr));
