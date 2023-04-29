@@ -118,6 +118,16 @@ void *recepciona_cliente(void *cliente_t) {
 			recv(cliente->sockfd, nomeSala, 64, 0);																		//recebe do cliente nome da sala a ser criada
 			_cria_sala(nomeSala, cliente);																				//chama função para criação de sala
 		} else if(atoi(opSelecao) == 2) {																				//converte char para int e testa valor
+			if(salasInc == 0) {
+				const char *mensagemSalasInexistentes = "Nenhuma sala foi encontrada!\n";								//ponteiro p/ mensagem ao usuário
+				
+				if(write(cliente->sockfd, mensagemSalasInexistentes, strlen(mensagemSalasInexistentes)) < 0) {			//escreve a mensagem no fd do cliente e verifica falha
+					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
+				}
+
+				continue;
+			}
+			
 			pthread_create(&idThread, NULL, &_mostra_salas_existentes, (void*)cliente);									//se for 2, cria thread e chama função para mostrar salas existentes no server
 			
 			char opSelecao[4];																							//var p/ guardar opção de sala escolhida pelo usuário
