@@ -15,6 +15,10 @@
 void str_sobrescreve_stdout();
 void str_remover_quebralinha (char* arr, int length);
 void captura_ctrlc_sai(int sig);
+void recebe_nome();
+void menu();
+void criar_sala();
+void ver_salas();
 void enviar_msg();
 void receber_msg();
 
