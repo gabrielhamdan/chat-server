@@ -12,6 +12,10 @@
 #include <arpa/inet.h>
 #include <pthread.h>
 
+#define LOCALHOST "127.0.0.1"
+#define PORTA 30000
+#define STD_LEN 2048
+
 void str_sobrescreve_stdout();
 void str_remover_quebralinha (char* arr, int length);
 void captura_ctrlc_sai(int sig);

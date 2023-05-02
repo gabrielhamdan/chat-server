@@ -53,8 +53,11 @@ void *_mostra_salas_existentes(void *cliente_t) {
 			sprintf(usuOn, "%d", salas[i]->usuOn);																		//var usuOn recebe a quantidade de usuários online da respectiva sala
 
 			snprintf(buffer, sizeof(buffer), "%s | ONLINE: %s\n", nomeSala, usuOn);										//concatena no buffer o nome da sala e a quantidade de usuários online
-
-			if(write(cliente->sockfd, buffer, strlen(buffer)) < 0) {													//escreve o buffer no fd do cliente e verifica falha
+			
+			char qtSala[4];
+			sprintf(qtSala, "%d", salasInc);
+			send(cliente->sockfd, qtSala, sizeof(qtSala), 0);
+			if(send(cliente->sockfd, buffer, strlen(buffer), 0) < 0) {													//escreve o buffer no fd do cliente e verifica falha
 					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
 					break;																								//sai imediatamente do laço em caso de falha
 			}
@@ -119,11 +122,13 @@ void *recepciona_cliente(void *cliente_t) {
 			_cria_sala(nomeSala, cliente);																				//chama função para criação de sala
 		} else if(atoi(opSelecao) == 2) {																				//converte char para int e testa valor
 			if(salasInc == 0) {
-				const char *mensagemSalasInexistentes = "Nenhuma sala foi encontrada!\n";								//ponteiro p/ mensagem ao usuário
+				// const char *mensagemSalasInexistentes = "Nenhuma sala foi encontrada!\n";								//ponteiro p/ mensagem ao usuário
 				
-				if(write(cliente->sockfd, mensagemSalasInexistentes, strlen(mensagemSalasInexistentes)) < 0) {			//escreve a mensagem no fd do cliente e verifica falha
-					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
-				}
+				// if(write(cliente->sockfd, mensagemSalasInexistentes, strlen(mensagemSalasInexistentes)) < 0) {			//escreve a mensagem no fd do cliente e verifica falha
+				// 	perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
+				// }
+				char zero = '0';
+				send(cliente->sockfd, &zero, sizeof(zero), 0);
 
 				continue;
 			}
