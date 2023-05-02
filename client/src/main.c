@@ -1,10 +1,12 @@
 #include "./utils.h"																			//inclui libs e assinaturas
 										
-extern volatile sig_atomic_t flag;																//Variaveis globais
+extern volatile sig_atomic_t flag;																//variaveis globais
 extern int sockfd;																				//
-extern char nome[16];
-extern char sala[16];
-extern int opMenu;																				//define o tamanho da variavel nome
+extern char nome[16];																			//define o tamanho da variavel nome
+extern char salaNome[16];																			//define o tamanho da variavel sala
+//extern int opMenu;
+
+#define LENGTH 2048																				
 
 
 int main(int argc, char **argv){
@@ -15,9 +17,7 @@ int main(int argc, char **argv){
 	signal(SIGINT, captura_ctrlc_sai);
 
 	recebe_nome();
-
 	
-
 	struct sockaddr_in server_addr;
 
 	// config do socket
@@ -33,9 +33,47 @@ int main(int argc, char **argv){
 	}
 
 	send(sockfd, nome, 16, 0);																	//envia nome para o servidor
-	//send(sockfd, sala, 16, 0);
 
-	menu();	
+	//menu();
+	char opMenu[2];
+	int fechaLoop = 0;
+		
+	while(!fechaLoop){
+		printf("\n\n======== MENU ========\n");
+		printf("1 - Criar nova sala\n");
+		printf("2 - Ver salas existentes\n\n");
+		printf("Digite a opção desejada: ");
+		//fgets(opMenu, 2, stdin);
+		//str_remover_quebralinha(opMenu, strlen(opMenu));
+		scanf("%s", opMenu);
+		getchar();
+		send(sockfd, opMenu, sizeof(opMenu), 0); 
+		system("clear");
+
+		if(opMenu == '1'){ 
+			criar_sala();
+			send(sockfd, salaNome, 16, 0);
+			fechaLoop = 0;
+			system("clear");
+		}else if(opMenu == '2'){
+			char idSala[5];
+			char listaSalas[LENGTH] = {};
+			bzero(listaSalas, LENGTH);
+			printf("===== ESCOLHA A SALA =====\n");
+			recv(sockfd, listaSalas, LENGTH, 0);
+			printf("0 - Voltar ao menu\n\n");
+			printf("Digite o id da sala ou 0: ");
+			fgets(idSala, 16, stdin);
+			str_remover_quebralinha(idSala, strlen(idSala));
+			send(sockfd, idSala, 5, 0); 
+		}else{ 
+			printf("Opção inválida!\n\n");
+			fechaLoop = 0;
+			sleep(2);
+			system("clear");
+		}
+	}
+	
 
 	pthread_t send_msg_thread;
     if(pthread_create(&send_msg_thread, NULL, (void *) enviar_msg, NULL) != 0){
@@ -53,7 +91,7 @@ int main(int argc, char **argv){
 		if(flag){
 			printf("\nSaiu\n");
 			break;
-    }
+    	}
 	}
 
 	close(sockfd);
