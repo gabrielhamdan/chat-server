@@ -3,7 +3,8 @@
 extern volatile sig_atomic_t flag;																//variaveis globais
 extern int sockfd;																				//
 extern char nome[16];																			//define o tamanho da variavel nome
-extern char salaNome[16];																			//define o tamanho da variavel sala
+extern char salaNome[16];																		//define o tamanho da variavel sala
+char opMenu[2];																		
 //extern int opMenu;
 
 #define LENGTH 2048																				
@@ -35,7 +36,6 @@ int main(int argc, char **argv){
 	send(sockfd, nome, 16, 0);																	//envia nome para o servidor
 
 	//menu();
-	char opMenu[2];
 	int fechaLoop = 0;
 		
 	while(!fechaLoop){
@@ -43,19 +43,21 @@ int main(int argc, char **argv){
 		printf("1 - Criar nova sala\n");
 		printf("2 - Ver salas existentes\n\n");
 		printf("Digite a opção desejada: ");
-		//fgets(opMenu, 2, stdin);
-		//str_remover_quebralinha(opMenu, strlen(opMenu));
-		scanf("%s", opMenu);
-		getchar();
-		send(sockfd, opMenu, sizeof(opMenu), 0); 
+		fgets(opMenu, 2, stdin);
+		str_remover_quebralinha(opMenu, strlen(opMenu));
+		//scanf("%s", opMenu);
+		//getchar();
+		//send(sockfd, opMenu, sizeof(opMenu), 0); 
 		system("clear");
-
-		if(opMenu == '1'){ 
+		
+		if(strcmp(opMenu, '1') == 1){
+			send(sockfd, opMenu, sizeof(opMenu), 0);  
 			criar_sala();
 			send(sockfd, salaNome, 16, 0);
 			fechaLoop = 0;
 			system("clear");
-		}else if(opMenu == '2'){
+		}else if(strcmp(opMenu, '2') == 1){
+			send(sockfd, opMenu, sizeof(opMenu), 0); 
 			char idSala[5];
 			char listaSalas[LENGTH] = {};
 			bzero(listaSalas, LENGTH);
@@ -66,6 +68,7 @@ int main(int argc, char **argv){
 			fgets(idSala, 16, stdin);
 			str_remover_quebralinha(idSala, strlen(idSala));
 			send(sockfd, idSala, 5, 0); 
+			fechaLoop = 1;
 		}else{ 
 			printf("Opção inválida!\n\n");
 			fechaLoop = 0;
@@ -74,7 +77,6 @@ int main(int argc, char **argv){
 		}
 	}
 	
-
 	pthread_t send_msg_thread;
     if(pthread_create(&send_msg_thread, NULL, (void *) enviar_msg, NULL) != 0){
 		printf("ERRO: Falha ao enviar mensagem\n");

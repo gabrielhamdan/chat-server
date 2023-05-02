@@ -7,8 +7,8 @@ volatile sig_atomic_t flag = 0;
 int sockfd = 0;
 char nome[16];
 char salaNome[16];
-char opMenu;
-int checaNome = 0;
+//char opMenu;
+
 
 void str_sobrescreve_stdout() {                                      //sobrescreve o texto do console com '>'
     printf("%s", "> ");
@@ -30,7 +30,10 @@ void captura_ctrlc_sai(int sig) {                                    //quando o 
 }
 
 void recebe_nome(){                                                  //recebe o nome do usuario e confere se tem o tamanho correto
+    int checaNome = 0;
+    
     system("clear");
+    
     while(!checaNome){
         printf("Digite o seu nome de usuário: ");
         fgets(nome, 16, stdin);
@@ -45,40 +48,40 @@ void recebe_nome(){                                                  //recebe o 
 
 }
 
-void menu(){
-    int loopMenu = 0;
+// void menu(){
+//     int loopMenu = 0;
 
-    while(loopMenu == 0){
-        printf("\n\n======== MENU ========\n");
-        printf("1 - Criar nova sala\n");
-        printf("2 - Ver salas existentes\n\n");
+//     while(loopMenu == 0){
+//         printf("\n\n======== MENU ========\n");
+//         printf("1 - Criar nova sala\n");
+//         printf("2 - Ver salas existentes\n\n");
 
-        printf("Digite a opção desejada: ");
-        scanf("%d", &loopMenu);
+//         printf("Digite a opção desejada: ");
+//         scanf("%d", &loopMenu);
 
 
-        switch(loopMenu){
-            case 1: 
-                criar_sala();
-                opMenu = '1';
-                loopMenu = 1;
-                system("clear");
-                break;
-            case 2:
-                ver_salas();
-                opMenu = '2';
-                loopMenu = 1;
-                system("clear");
-                break;
-            default: 
-                printf("Opção inválida!\n\n");
-                sleep(2);
-                loopMenu = 0;
-                system("clear");
-        }
-    }
+//         switch(loopMenu){
+//             case 1: 
+//                 criar_sala();
+//                 opMenu = '1';
+//                 loopMenu = 1;
+//                 system("clear");
+//                 break;
+//             case 2:
+//                 ver_salas();
+//                 opMenu = '2';
+//                 loopMenu = 1;
+//                 system("clear");
+//                 break;
+//             default: 
+//                 printf("Opção inválida!\n\n");
+//                 sleep(2);
+//                 loopMenu = 0;
+//                 system("clear");
+//         }
+//     }
 
-}
+// }
 
 void criar_sala(){
     int checaSala = 0;
@@ -103,28 +106,28 @@ void criar_sala(){
     //menu();
 }
 
-void ver_salas(){
-    char idSala[5];
-    char listaSalas[LENGTH] = {};
-    bzero(listaSalas, LENGTH);
+// void ver_salas(){
+//     char idSala[5];
+//     char listaSalas[LENGTH] = {};
+//     bzero(listaSalas, LENGTH);
 
-    printf("===== ESCOLHA A SALA =====\n");
-    recv(sockfd, listaSalas, LENGTH, 0);
-    printf("0 - Voltar ao menu\n\n");
-    printf("Digite o id da sala ou 0: ");
-    scanf("%s", idSala);
-    getchar();
+//     printf("===== ESCOLHA A SALA =====\n");
+//     recv(sockfd, listaSalas, LENGTH, 0);
+//     printf("0 - Voltar ao menu\n\n");
+//     printf("Digite o id da sala ou 0: ");
+//     scanf("%s", idSala);
+//     getchar();
 
-    if(idSala == 0){
-        menu();
-    }else{
-        //send(sockfd, opMenu, sizeof(opMenu), 0);        //envia opção do menu
-        send(sockfd, idSala, 5, 0);                     //envia id sala escolhida
-    }
+//     if(idSala == 0){
+//         menu();
+//     }else{
+//         //send(sockfd, opMenu, sizeof(opMenu), 0);        //envia opção do menu
+//         send(sockfd, idSala, 5, 0);                     //envia id sala escolhida
+//     }
 
-    system("clear");   
+//     system("clear");   
 
-}
+// }
 
 void enviar_msg() { //envia mensagens ao servidor
     char message[LENGTH] = {};
