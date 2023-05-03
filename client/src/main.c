@@ -41,36 +41,13 @@ int main(int argc, char **argv){
 	
 		}else if(strcmp(opMenu, "2") == 0){
 			send(sockfd, opMenu, sizeof(opMenu), 0); 
+			
+			//pthread_t mostra_salas_thread;
 			mostra_salas();
-			
-			// char idSala[5];
-			// char qtSalas[4];
-			// char listaSalas[128];
-			// bzero(listaSalas, 128);
-			// //getchar();
-			// printf("===== ESCOLHA A SALA =====\n");
-			
-			// recv(sockfd, qtSalas, sizeof(qtSalas), 0);
-				
-			// if(atoi(qtSalas) != 0) {
-			// 	recv(sockfd, listaSalas, 128, 0);
-			// 	for(int i = 0; i < atoi(qtSalas); i++)
-			// 		printf("%s\n", listaSalas);
-			// } else
-			// 	printf("Ainda não existem salas neste servidor.\n");
-
-			// printf("Digite o id da sala desejada (0 para voltar ao menu): ");
-			// fgets(idSala, 16, stdin);
-			// str_remover_quebralinha(idSala, strlen(idSala));
-			// send(sockfd, idSala, 5, 0); 
-			
-			// if(strcmp(idSala, "0") != 0)
-			// 	escolheuSala = 1;
-			// } else{ 
-			// 	printf("Opção inválida!\n\n");
-			// 	sleep(2);
-			// 	system("clear");
-			// }
+			//if(pthread_create(&mostra_salas_thread, NULL, (void *) mostra_salas, NULL) != 0){
+			//	printf("ERRO: Falha ao escolher a sala");
+			//	return EXIT_FAILURE;
+			//}			
 		}
 		
 		if(escolheuSala){break;}

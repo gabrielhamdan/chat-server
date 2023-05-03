@@ -68,7 +68,6 @@ void criar_sala(){
         printf("===== CRIAR NOVA SALA =====\n");
         printf("Digite o nome da sala: ");
         fgets(salaNome, 16, stdin);
-        str_remover_quebralinha(salaNome, strlen(salaNome));
 
         if (strlen(salaNome) > 16 || strlen(salaNome) < 2){
 		    printf("\nO nome da sala deve conter mais que 2 e menos que 15 caracteres.\n");
