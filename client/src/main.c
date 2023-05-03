@@ -4,12 +4,14 @@ extern volatile sig_atomic_t flag;																//variaveis globais
 extern int sockfd;																				//
 extern char nome[16];																			//define o tamanho da variavel nome
 extern char salaNome[16];																		//define o tamanho da variavel sala
-char opMenu[4];																	
+extern char opMenu[4];
+extern char idSala[5];	
+extern int escolheuSala;																		//var para fechar o loop
 
 int main(int argc, char **argv){
 	// signal(SIGINT, captura_ctrlc_sai);
 
-	recebe_nome();
+	//recebe_nome();
 
 	system("clear");
 	
@@ -27,61 +29,51 @@ int main(int argc, char **argv){
 		return EXIT_FAILURE;
 	}
 
-	send(sockfd, nome, 16, 0);																	//envia nome para o servidor
-	int escolheuSala = 0;
+	recebe_nome();																				//coleta e envia nome para o servidor
 		
 	while(1){
-		system("clear");
-		printf("\n\n======== MENU ========\n");
-		printf("1 - Criar nova sala\n");
-		printf("2 - Ver salas existentes\n\n");
-		printf("Digite a opção desejada: ");
-		fgets(opMenu, 2, stdin);
-
-		system("clear");
+		mostra_menu();
 
 		if(strcmp(opMenu, "1") == 0){
-			send(sockfd, opMenu, sizeof(opMenu), 0);  
-			// getchar();
+			send(sockfd, opMenu, sizeof(opMenu), 0);
 			criar_sala();
-			printf("SALA CRIADA: %s", salaNome);
-			send(sockfd, salaNome, 16, 0);
-			send(sockfd, salaNome, sizeof(salaNome), 0);
-			system("clear");
+
+	
 		}else if(strcmp(opMenu, "2") == 0){
 			send(sockfd, opMenu, sizeof(opMenu), 0); 
-			char idSala[5];
-			char qtSalas[4];
-			char listaSalas[128];
-			bzero(listaSalas, 128);
-			// getchar();
-			printf("===== ESCOLHA A SALA =====\n");
+			mostra_salas();
 			
-			recv(sockfd, qtSalas, sizeof(qtSalas), 0);
+			// char idSala[5];
+			// char qtSalas[4];
+			// char listaSalas[128];
+			// bzero(listaSalas, 128);
+			// //getchar();
+			// printf("===== ESCOLHA A SALA =====\n");
+			
+			// recv(sockfd, qtSalas, sizeof(qtSalas), 0);
 				
-			if(atoi(qtSalas) != 0) {
-				recv(sockfd, listaSalas, 128, 0);
+			// if(atoi(qtSalas) != 0) {
+			// 	recv(sockfd, listaSalas, 128, 0);
+			// 	for(int i = 0; i < atoi(qtSalas); i++)
+			// 		printf("%s\n", listaSalas);
+			// } else
+			// 	printf("Ainda não existem salas neste servidor.\n");
 
-				for(int i = 0; i < atoi(qtSalas); i++)
-					printf("%s\n", listaSalas);
-			} else
-				printf("Ainda não existem salas neste servidor.\n");
-
-			printf("0 - Voltar ao menu\n\n");
-			printf("Digite o id da sala ou 0: ");
-			fgets(idSala, 16, stdin);
-			str_remover_quebralinha(idSala, strlen(idSala));
-			send(sockfd, idSala, 5, 0); 
+			// printf("Digite o id da sala desejada (0 para voltar ao menu): ");
+			// fgets(idSala, 16, stdin);
+			// str_remover_quebralinha(idSala, strlen(idSala));
+			// send(sockfd, idSala, 5, 0); 
 			
-			if(strcmp(idSala, "0") != 0)
-				escolheuSala = 1;
-		} else{ 
-			printf("Opção inválida!\n\n");
-			sleep(2);
-			system("clear");
+			// if(strcmp(idSala, "0") != 0)
+			// 	escolheuSala = 1;
+			// } else{ 
+			// 	printf("Opção inválida!\n\n");
+			// 	sleep(2);
+			// 	system("clear");
+			// }
 		}
-
-		if(escolheuSala) break;
+		
+		if(escolheuSala){break;}
 	}
 	
 	pthread_t send_msg_thread;
