@@ -117,6 +117,13 @@ int main(int argc, char **argv){
 	// fgets(n, 10, stdin);
 	send(sockfd, name, 32, 0);
 
+	char op[2];
+	printf("Digite uma opção:\n");
+	printf("1 - nova sala\n");
+	printf("2 - ver salas\n");
+    fgets(op, 2, stdin);
+    str_remover_quebralinha(op, strlen(op));
+	send(sockfd, op, 2, 0);
 	// char s[4];
 	// fgets(s, 4, stdin);
 	// send(sockfd, s, 4, 0);
