@@ -4,7 +4,7 @@ static int id = 10;																			//var p/ guardar ids únicos de usuários
 extern _Atomic unsigned int clienteInc;
 
 int main(int argc, char **argv) {
-	printf("> Inicializando o servidor.\n");												//log
+	printf("> Inicializando o servidor.\n");												//log de inicialização do server
 
 	int serverFd = 0, connfd = 0;															//var p/ fds do server e do cliente
 

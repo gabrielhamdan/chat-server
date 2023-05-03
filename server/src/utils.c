@@ -10,6 +10,28 @@ static _Atomic unsigned int salasInc = 0;																				//variável atômic
 static pthread_mutex_t lock;																							//trava para semáforos de threads
 static pthread_t idThread;																								//id de threads
 
+void _destroi_salas_ociosas() {
+	pthread_mutex_lock(&lock);																							//semáforo fecha para outras threads que tentem executar a função
+
+	time_t t = time(NULL);																								//var guarda o horário atual
+	int ehSalaOciosa;																									//bool para armazenar estado de sala
+
+	for(int i = 0; i < MAX_SALAS; i++) {																				//percorre array de salas
+		if(!salas[i])																									//testa se existe sala na iteração
+			continue;																									//se não houver, salta iteração
+
+		ehSalaOciosa = (t - salas[i]->horaCriacao) > MAX_TEMPO_OCIOSO && salas[i]->usuOn == 0;							//atribui à ehSalaOciosa o estado da sala
+
+		if(ehSalaOciosa) {																								//teste se a sala está ociosa
+			printf("> Sala ociosa removida [id: %d].\n", salas[i]->idSala);												//se executar o bloco, printa no log do servidor a remoção da sala em questão
+			salasInc--;																									//atualiza o contador de salas existentes
+			salas[i] = NULL;																							//remove sala do array de salas
+		}
+	}
+
+	pthread_mutex_unlock(&lock);																						//abre semáforo para que outras threads possam executar a função
+}
+
 void _cria_sala(char salaNome[], Cliente *cliente) {
 	pthread_mutex_lock(&lock);																							//semáforo fecha para outras threads que tentem executar a função
 
@@ -20,6 +42,9 @@ void _cria_sala(char salaNome[], Cliente *cliente) {
 	strcpy(sala->salaNome, salaNome);																					//atribui à estrutura nome da sala enviado pelo cliente
 	sala->usuOn = 0;																									//inicializa quantidade de usuários na sala
 	
+	time_t t = time(NULL);
+	sala->horaCriacao = t;
+
 	for(int i = 0; i < MAX_SALAS; ++i){																					//percorre array de salas
 		if(!salas[i]) {																									//busca busca pelo primeiro elemento vazio no array
 			salas[i] = sala;																							//insere nova sala no array de salas
@@ -52,7 +77,7 @@ void *_mostra_salas_existentes(void *cliente_t) {
 			strcpy(nomeSala, salas[i]->salaNome);																		//atribui nome da sala da iteração na var nomeSala
 			sprintf(usuOn, "%d", salas[i]->usuOn);																		//var usuOn recebe a quantidade de usuários online da respectiva sala
 
-			snprintf(buffer, sizeof(buffer), "%s | ONLINE: %s\n", nomeSala, usuOn);										//concatena no buffer o nome da sala e a quantidade de usuários online
+			snprintf(buffer, sizeof(buffer), "[id: %d] %s | ONLINE: %s\n", salas[i]->idSala, nomeSala, usuOn);			//concatena no buffer o nome da sala e a quantidade de usuários online
 
 			if(write(cliente->sockfd, buffer, strlen(buffer)) < 0) {													//escreve o buffer no fd do cliente e verifica falha
 					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
@@ -63,7 +88,7 @@ void *_mostra_salas_existentes(void *cliente_t) {
 
 	pthread_detach(pthread_self());																						//encerra thread para o id que a iniciou
 
-	return NULL;																										//retorna ponteiro nulo (?) 
+	return NULL;																										//thread retorna ponteiro nulo
 }
 
 void _seleciona_sala(Cliente *cliente, int opSelecao) {
@@ -118,14 +143,12 @@ void *recepciona_cliente(void *cliente_t) {
 			recv(cliente->sockfd, nomeSala, 64, 0);																		//recebe do cliente nome da sala a ser criada
 			_cria_sala(nomeSala, cliente);																				//chama função para criação de sala
 		} else if(atoi(opSelecao) == 2) {																				//converte char para int e testa valor
-			if(salasInc == 0) {
-				const char *mensagemSalasInexistentes = "Nenhuma sala foi encontrada!\n";								//ponteiro p/ mensagem ao usuário
-				
-				if(write(cliente->sockfd, mensagemSalasInexistentes, strlen(mensagemSalasInexistentes)) < 0) {			//escreve a mensagem no fd do cliente e verifica falha
-					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
-				}
+			_destroi_salas_ociosas();																					//chama função para excluir salas s/ uso
+			if(salasInc == 0) {																							//testa se existe alguma sala
+				char zero = '0';																						//caso não haja nenhuma sala,
+				send(cliente->sockfd, &zero, sizeof(zero), 0);															//envia para o cliente o valor "0"
 
-				continue;
+				continue;																								//volta para o topo do laço
 			}
 			
 			pthread_create(&idThread, NULL, &_mostra_salas_existentes, (void*)cliente);									//se for 2, cria thread e chama função para mostrar salas existentes no server
@@ -144,7 +167,7 @@ void *recepciona_cliente(void *cliente_t) {
 
 	pthread_create(&idThread, NULL, &_escuta_cliente, (void*)cliente);													//cria thread para escutar cliente
 
-	return NULL;																										//retorna ponteiro nulo (?)
+	return NULL;																										//thread retorna ponteiro nulo
 }
 
 void *_escuta_cliente(void *cliente_t) {
@@ -167,8 +190,8 @@ void *_escuta_cliente(void *cliente_t) {
 			if(strlen(buffer) > 0)																						//testa se há algo no buffer
 				envia_mensagem(buffer, cliente->idUsuario, cliente->idSala);											//dispara mensagem do usuário aos demais conectados na mesma sala
 		} else if (rec == 0 || strcmp(buffer, "/s\n") == 0){															//testa se não houve resposta ou se o usuário deseja sair
+			printf("> Usuário %s se desconectou.\n", cliente->nomeUsuario);												//printa no log saída do usuário
 			sprintf(buffer, "%s saiu.\n", cliente->nomeUsuario);														//concatena mensagem ao nome de usuário
-			printf("%s", buffer);																						//printa no log saída do usuário
 			envia_mensagem(buffer, cliente->idUsuario, cliente->idSala);												//envia mensagem aos demais usuários sobre a saída deste
 			desconectou = 1;																							//atribui verdadeiro à var desconectou
 		} else {																										//se não, entende-se que houve algum tipo de erro na comunicação
@@ -187,7 +210,7 @@ void *_escuta_cliente(void *cliente_t) {
 	clienteInc--;																										//decrementa variável que controla clientes no server
 	pthread_detach(pthread_self());																						//encerra thread para o id que a iniciou
 
-	return NULL;
+	return NULL;																										//thread retorna ponteiro nulo
 }
 
 void printa_addr(struct sockaddr_in addr) {

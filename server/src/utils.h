@@ -12,6 +12,7 @@
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <time.h>
 #include "./constantes.h"
 
 void printa_addr(struct sockaddr_in addr);
