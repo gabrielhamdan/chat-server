@@ -78,8 +78,11 @@ void *_mostra_salas_existentes(void *cliente_t) {
 			sprintf(usuOn, "%d", salas[i]->usuOn);																		//var usuOn recebe a quantidade de usuários online da respectiva sala
 
 			snprintf(buffer, sizeof(buffer), "[id: %d] %s | ONLINE: %s\n", salas[i]->idSala, nomeSala, usuOn);			//concatena no buffer o nome da sala e a quantidade de usuários online
-
-			if(write(cliente->sockfd, buffer, strlen(buffer)) < 0) {													//escreve o buffer no fd do cliente e verifica falha
+			
+			char qtSala[4];
+			sprintf(qtSala, "%d", salasInc);
+			send(cliente->sockfd, qtSala, sizeof(qtSala), 0);
+			if(send(cliente->sockfd, buffer, strlen(buffer), 0) < 0) {													//escreve o buffer no fd do cliente e verifica falha
 					perror("ERRO: Falha ao escrever no descritor de arquivo.\n");										//printa no log do server em caso de falha
 					break;																								//sai imediatamente do laço em caso de falha
 			}
